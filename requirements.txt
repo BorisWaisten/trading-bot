@@ -1,0 +1,9 @@
+alpaca-trade-api>=3.2.0
+pandas>=2.2.0
+numpy>=1.26.0
+yfinance>=0.2.40
+python-dotenv>=1.0.1
+requests>=2.31.0
+
+# PyOBD no está en PyPI, se instala aparte con:
+# pip install git+https://github.com/franco-lamas/PyOBD --upgrade --no-cache-dir

@@ -22,7 +22,8 @@ import requests
 import yfinance as yf
 import pandas as pd
 
-CCL_HISTORY_FILE = "ccl_history.json"
+DATA_DIR = os.getenv("DATA_DIR", ".")
+CCL_HISTORY_FILE = os.path.join(DATA_DIR, "ccl_history.json")
 CCL_LOOKBACK_ENTRIES = 3   # comparar contra el valor de hace N registros guardados
 
 # Umbrales

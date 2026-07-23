@@ -15,6 +15,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+DATA_DIR = os.getenv("DATA_DIR", ".")
+
 ALPACA_API_KEY = os.getenv("ALPACA_API_KEY", "")
 ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY", "")
 
@@ -35,7 +37,7 @@ SWING_SYMBOLS = ["YPF", "VIST"]
 SWING_PROFIT_TARGET_PCT = 0.10   # vender al subir 10% desde la compra
 SWING_PULLBACK_PCT = 0.05        # comprar al caer 5% desde el pico (mientras se está afuera)
 SWING_STOP_LOSS_PCT = 0.08       # vender de emergencia si cae 8% desde la compra
-SWING_STATE_FILE = "swing_state.json"  # dónde se guarda el seguimiento del "pico" entre corridas
+SWING_STATE_FILE = os.path.join(DATA_DIR, "swing_state.json")  # dónde se guarda el seguimiento del "pico" entre corridas
 # En vez de una cantidad fija de acciones, el tamaño de cada operación se
 # calcula según cuánto capital total tenés y cuánto estás dispuesto a
 # arriesgar en esa operación puntual (regla clásica: 1-2% por operación).

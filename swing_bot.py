@@ -42,6 +42,7 @@ from config import (
     ALPACA_API_KEY, ALPACA_SECRET_KEY, ALPACA_BASE_URL,
     SWING_SYMBOLS, SWING_PROFIT_TARGET_PCT, SWING_PULLBACK_PCT,
     SWING_STOP_LOSS_PCT, SWING_STATE_FILE, CHECK_INTERVAL_SECONDS,
+    DATA_DIR,
 )
 from macro_filter import get_market_signal
 
@@ -49,7 +50,7 @@ from macro_filter import get_market_signal
 logger = logging.getLogger("swing_bot")
 logger.setLevel(logging.INFO)
 
-file_handler = RotatingFileHandler("trading_bot.log", maxBytes=5_000_000, backupCount=3, encoding="utf-8")
+file_handler = RotatingFileHandler(os.path.join(DATA_DIR, "trading_bot.log"), maxBytes=5_000_000, backupCount=3, encoding="utf-8")
 file_handler.setFormatter(logging.Formatter("%(asctime)s  %(levelname)s  %(message)s"))
 console_handler = logging.StreamHandler()
 console_handler.setFormatter(logging.Formatter("%(message)s"))

@@ -47,6 +47,8 @@ from config import (
 from macro_filter import get_market_signal
 
 # --- Logging: a archivo (con rotación, para no llenar el disco) y a consola ---
+os.makedirs(DATA_DIR, exist_ok=True)
+
 logger = logging.getLogger("swing_bot")
 logger.setLevel(logging.INFO)
 

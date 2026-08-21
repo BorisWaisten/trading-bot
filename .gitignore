@@ -20,6 +20,7 @@ env/
 *.log
 trading_bot.log
 ccl_history.json
+binance_grid_state.json
 
 # macOS
 .DS_Store

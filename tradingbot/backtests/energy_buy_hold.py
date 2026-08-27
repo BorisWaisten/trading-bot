@@ -3,7 +3,7 @@ Backtest de estrategia BUY & HOLD enfocado en el sector ENERGÍA del panel
 Merval argentino, vía sus ADRs (cotización en USD en Wall Street).
 
 Uso:
-    python energy_buy_hold.py
+    python -m tradingbot.backtests.energy_buy_hold
 """
 import yfinance as yf
 import pandas as pd

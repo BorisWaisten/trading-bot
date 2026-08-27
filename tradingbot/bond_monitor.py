@@ -15,7 +15,7 @@ Instalación (no está en PyPI todavía, se instala desde GitHub):
     pip install git+https://github.com/franco-lamas/PyOBD --upgrade --no-cache-dir
 
 Uso:
-    python bond_monitor.py
+    python -m tradingbot.bond_monitor
 """
 import json
 

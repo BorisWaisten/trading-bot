@@ -4,13 +4,13 @@ dinero real ni simulado. Corré esto primero, siempre, antes de tocar
 el bot de paper trading.
 
 Uso:
-    python backtest.py
+    python -m tradingbot.backtests.backtest
 """
 import yfinance as yf
 import pandas as pd
 
-from config import SYMBOL, SMA_SHORT, SMA_LONG, RISK_PER_TRADE_PCT, STOP_LOSS_PCT, TAKE_PROFIT_PCT
-from strategy import add_signals
+from tradingbot.config import SYMBOL, SMA_SHORT, SMA_LONG, RISK_PER_TRADE_PCT, STOP_LOSS_PCT, TAKE_PROFIT_PCT
+from tradingbot.strategies.strategy import add_signals
 
 
 def run_backtest(symbol: str, start: str, end: str, sma_short: int, sma_long: int,

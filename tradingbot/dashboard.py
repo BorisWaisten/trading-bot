@@ -9,13 +9,20 @@ binance_grid_state.json) para mostrarlo en una sola pantalla, en vez de
 andar mirando los .log a mano.
 
 Uso:
-    streamlit run dashboard.py
+    streamlit run tradingbot/dashboard.py
 """
 import json
 import math
 import os
+import sys
 import time
 from datetime import datetime
+from pathlib import Path
+
+# Streamlit ejecuta este archivo directamente (no como módulo -m), así que
+# hay que agregar a mano la raíz del proyecto a sys.path para poder hacer
+# "from tradingbot.config import ..." sin importar desde dónde se lance.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import pandas as pd
 import streamlit as st
@@ -45,7 +52,7 @@ def render_alpaca():
     st.header("Acciones (Alpaca, paper trading)")
     try:
         import alpaca_trade_api as tradeapi
-        from config import (
+        from tradingbot.config import (
             ALPACA_API_KEY, ALPACA_SECRET_KEY, ALPACA_BASE_URL,
             DATA_DIR, SWING_STATE_FILE,
         )
@@ -99,7 +106,7 @@ def render_alpaca():
         st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
 
     try:
-        from macro_filter import get_market_signal
+        from tradingbot.macro_filter import get_market_signal
         signal = get_market_signal()
         st.subheader("Semaforo macro")
         st.write(f"**{signal['signal']}** -- Petroleo: {signal['oil']['signal']} "
@@ -115,7 +122,7 @@ def render_alpaca():
 def render_binance():
     st.header("Cripto (Binance Futures, grid trading)")
     try:
-        from binance_config import (
+        from tradingbot.binance_config import (
             BINANCE_API_KEY, BINANCE_API_SECRET, BINANCE_TESTNET,
             GRID_CONFIG, GRID_STATE_FILE, GRID_LOG_FILE, with_timeout,
         )

@@ -16,11 +16,10 @@ build/
 venv/
 env/
 
-# Logs y datos generados en runtime
-*.log
-trading_bot.log
-ccl_history.json
-binance_grid_state.json
+# Logs y estado generados en runtime (swing_state.json, binance_grid_state.json,
+# ccl_history.json, trading_bot.log, binance_grid_bot.log, etc.)
+data/*
+!data/.gitkeep
 
 # macOS
 .DS_Store

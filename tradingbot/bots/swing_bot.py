@@ -27,7 +27,7 @@ IMPORTANTE: Corre en cuenta de PAPER TRADING (dinero simulado) por
 defecto. No es consejo de inversión.
 
 Uso:
-    python swing_bot.py
+    python -m tradingbot.bots.swing_bot
 """
 import json
 import logging
@@ -38,13 +38,13 @@ from logging.handlers import RotatingFileHandler
 
 import alpaca_trade_api as tradeapi
 
-from config import (
+from tradingbot.config import (
     ALPACA_API_KEY, ALPACA_SECRET_KEY, ALPACA_BASE_URL,
     SWING_SYMBOLS, SWING_PROFIT_TARGET_PCT, SWING_PULLBACK_PCT,
     SWING_STOP_LOSS_PCT, SWING_STATE_FILE, CHECK_INTERVAL_SECONDS,
     DATA_DIR,
 )
-from macro_filter import get_market_signal
+from tradingbot.macro_filter import get_market_signal
 
 # --- Logging: a archivo (con rotación, para no llenar el disco) y a consola ---
 os.makedirs(DATA_DIR, exist_ok=True)

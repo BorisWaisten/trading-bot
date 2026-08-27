@@ -20,7 +20,7 @@ IMPORTANTE:
   garantía de resultados.
 
 Uso:
-    python binance_grid_bot.py
+    python -m tradingbot.bots.binance_grid_bot
 """
 import json
 import logging
@@ -32,12 +32,12 @@ from logging.handlers import RotatingFileHandler
 from binance.client import Client
 from binance.enums import SIDE_BUY, SIDE_SELL, FUTURE_ORDER_TYPE_MARKET
 
-from binance_config import (
+from tradingbot.binance_config import (
     BINANCE_API_KEY, BINANCE_API_SECRET, BINANCE_TESTNET,
     GRID_CONFIG, GRID_STATE_FILE, GRID_LOG_FILE, GRID_CHECK_INTERVAL_SECONDS,
     DATA_DIR, with_timeout,
 )
-from grid_strategy import build_levels, find_crossings
+from tradingbot.strategies.grid_strategy import build_levels, find_crossings
 
 os.makedirs(DATA_DIR, exist_ok=True)
 

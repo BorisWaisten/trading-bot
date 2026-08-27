@@ -9,7 +9,7 @@ el primer día del período, y no volver a operar. Se compara cada acción
 individualmente y el promedio del panel completo.
 
 Uso:
-    python buy_and_hold_merval.py
+    python -m tradingbot.backtests.buy_and_hold_merval
 """
 import yfinance as yf
 import pandas as pd

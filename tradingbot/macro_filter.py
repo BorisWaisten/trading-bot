@@ -17,12 +17,18 @@ Fuentes:
 import json
 import os
 from datetime import datetime
+from pathlib import Path
 
 import requests
 import yfinance as yf
 import pandas as pd
 
-DATA_DIR = os.getenv("DATA_DIR", ".")
+# Por defecto, la carpeta data/ en la raíz del proyecto (independiente de
+# desde dónde se ejecute el script). DATA_DIR la puede pisar una variable
+# de entorno si hace falta (ej. un volumen distinto en Railway).
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = os.getenv("DATA_DIR", str(PROJECT_ROOT / "data"))
+os.makedirs(DATA_DIR, exist_ok=True)
 CCL_HISTORY_FILE = os.path.join(DATA_DIR, "ccl_history.json")
 CCL_LOOKBACK_ENTRIES = 3   # comparar contra el valor de hace N registros guardados
 

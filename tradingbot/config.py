@@ -11,11 +11,17 @@ Cómo obtener tus claves de Alpaca (paper trading, gratis):
      ALPACA_SECRET_KEY=tu_secret
 """
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
 
-DATA_DIR = os.getenv("DATA_DIR", ".")
+# Por defecto, la carpeta data/ en la raíz del proyecto (independiente de
+# desde dónde se ejecute el script). DATA_DIR la puede pisar una variable
+# de entorno si hace falta (ej. un volumen distinto en Railway).
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = os.getenv("DATA_DIR", str(PROJECT_ROOT / "data"))
+os.makedirs(DATA_DIR, exist_ok=True)
 
 ALPACA_API_KEY = os.getenv("ALPACA_API_KEY", "")
 ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY", "")

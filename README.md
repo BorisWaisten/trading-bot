@@ -6,7 +6,7 @@ posiciones abiertas, P/L, estado de la grilla de Binance y semáforo macro.
 No coloca, modifica ni cancela ninguna orden.
 
 ```bash
-streamlit run dashboard.py
+streamlit run tradingbot/dashboard.py
 ```
 
 Se abre en http://localhost:8501 y se auto-actualiza cada 30 segundos
@@ -16,8 +16,8 @@ hace falta tenerlas para ver el panel de Alpaca.
 
 ## Desplegar el dashboard en Railway (URL pública)
 
-El dashboard lee archivos de estado (`swing_state.json`,
-`binance_grid_state.json`, los `.log`) que escriben los bots, así que tiene
+El dashboard lee archivos de estado (`data/swing_state.json`,
+`data/binance_grid_state.json`, los `.log` en `data/`) que escriben los bots, así que tiene
 que correr **en el mismo servicio/contenedor** que ellos para compartir el
 filesystem. `run_all.py` levanta los bots en segundo plano y el dashboard
 en primer plano, bindeado al puerto que asigna Railway:
@@ -31,7 +31,8 @@ en primer plano, bindeado al puerto que asigna Railway:
 2. En **Variables**, agregá `DASHBOARD_PASSWORD` con una clave — sin esto
    cualquiera con la URL pública ve tus balances y posiciones. Opcionalmente
    `RAILWAY_BOTS` si querés levantar solo algunos bots (ej.
-   `swing_bot.py,binance_grid_bot.py`); por defecto levanta los tres.
+   `tradingbot.bots.swing_bot,tradingbot.bots.binance_grid_bot`); por
+   defecto levanta los tres.
 3. En **Settings → Networking**, generá un dominio público si todavía no
    tenés uno. Esa URL sirve el dashboard (Railway inyecta `$PORT`
    automáticamente, `run_all.py` lo usa para Streamlit).
@@ -80,7 +81,7 @@ cp .env.example .env
 ## 3. Backtesting (probar la estrategia con historia, sin riesgo)
 
 ```bash
-python backtest.py
+python -m tradingbot.backtests.backtest
 ```
 
 Esto descarga precios históricos, corre la estrategia y compara el resultado
@@ -90,7 +91,7 @@ ajustá los parámetros hasta que el resultado te convenza.**
 ## 4. Paper trading (dinero simulado, en vivo)
 
 ```bash
-python bot.py
+python -m tradingbot.bots.bot
 ```
 
 El bot va a revisar el símbolo configurado periódicamente y ejecutar compras/
@@ -99,7 +100,7 @@ operaciones en el dashboard de Alpaca (sección Paper Trading).
 
 ## 5. Parámetros ajustables
 
-Todo se configura en `config.py`:
+Todo se configura en `tradingbot/config.py`:
 
 | Parámetro | Qué hace |
 |---|---|
@@ -122,13 +123,36 @@ valor de posición.
 
 ```
 trading_bot/
-├── config.py       # Configuración y credenciales
-├── strategy.py      # Lógica de la estrategia (SMA crossover)
-├── backtest.py       # Prueba histórica sin riesgo
-├── bot.py            # Bot de paper trading en vivo
+├── run_all.py                       # Entry point único (Railway): levanta bots + dashboard
 ├── requirements.txt
-└── .env.example
+├── .env.example
+├── data/                             # Estado y logs generados en runtime (gitignored)
+└── tradingbot/
+    ├── config.py                     # Config y credenciales (Alpaca / estrategia RANGO)
+    ├── binance_config.py             # Config y credenciales (Binance grid)
+    ├── macro_filter.py               # Semáforo macro (petróleo + CCL)
+    ├── bond_monitor.py               # Monitoreo de bonos (en desarrollo)
+    ├── dashboard.py                  # Panel Streamlit de solo lectura
+    ├── strategies/
+    │   ├── strategy.py               # Estrategia SMA crossover (ya no en producción)
+    │   └── grid_strategy.py          # Lógica de niveles de grilla
+    ├── bots/                         # Bots en vivo (paper trading / testnet)
+    │   ├── bot.py                    # SMA sobre AAPL (ya no en producción)
+    │   ├── swing_bot.py              # Estrategia de RANGO sobre YPF/VIST (el real)
+    │   └── binance_grid_bot.py       # Grid trading sobre Binance Futures
+    └── backtests/                    # Scripts exploratorios, no corren en producción
+        ├── backtest.py
+        ├── swing_take_profit.py
+        ├── swing_take_profit_ars.py
+        ├── binance_grid_backtest.py
+        ├── buy_and_hold_merval.py
+        ├── buy_hold_merval.py
+        └── energy_buy_hold.py
 ```
+
+Todos los módulos y bots se corren con `python -m tradingbot.<ruta>`, ej.
+`python -m tradingbot.bots.swing_bot` (así los imports internos entre
+archivos funcionan bien). Correr siempre desde la raíz del proyecto.
 
 ## Próximos pasos posibles
 
@@ -152,7 +176,7 @@ tanto ganancias como pérdidas y puede **liquidar tu posición** si el precio
 se mueve en contra lo suficiente — perdés más rápido que en spot sin
 apalancamiento. No lo uses con cuenta real sin:
 1. Entender bien cómo funciona una grilla y qué es la liquidación
-2. Correr `binance_grid_backtest.py` en varios rangos de fechas y símbolos
+2. Correr `tradingbot/backtests/binance_grid_backtest.py` en varios rangos de fechas y símbolos
 3. Operar en testnet durante semanas y revisar manualmente el margen y las
    posiciones abiertas
 4. Consultar con un asesor financiero matriculado si vas a operar con dinero real
@@ -189,7 +213,7 @@ BINANCE_TESTNET=true
 ## 3. Backtesting (histórico real, sin riesgo ni necesidad de API keys)
 
 ```bash
-python binance_grid_backtest.py
+python -m tradingbot.backtests.binance_grid_backtest
 ```
 
 Descarga velas históricas públicas de Binance Futures y simula la grilla
@@ -201,18 +225,18 @@ garantía de lo que pasaría en vivo.
 ## 4. Bot en vivo (Testnet por defecto)
 
 ```bash
-python binance_grid_bot.py
+python -m tradingbot.bots.binance_grid_bot
 ```
 
 Revisa cada símbolo cada `GRID_CHECK_INTERVAL_SECONDS` y coloca órdenes
 market en Binance Futures Testnet cuando el precio cruza un nivel de la
 grilla. Al iniciar por primera vez arma la grilla centrada en el precio
 de mercado del momento (no hay precios hardcodeados). El estado se
-guarda en `binance_grid_state.json` para sobrevivir reinicios.
+guarda en `data/binance_grid_state.json` para sobrevivir reinicios.
 
 ## 5. Parámetros ajustables
 
-Todo se configura en `binance_config.py`, en `GRID_CONFIG` por símbolo:
+Todo se configura en `tradingbot/binance_config.py`, en `GRID_CONFIG` por símbolo:
 
 | Parámetro | Qué hace |
 |---|---|
@@ -225,10 +249,10 @@ Todo se configura en `binance_config.py`, en `GRID_CONFIG` por símbolo:
 ## 6. Estructura del módulo
 
 ```
-binance_config.py         # Credenciales y parámetros de grilla por símbolo
-grid_strategy.py           # Lógica pura: niveles de la grilla y detección de cruces
-binance_grid_backtest.py   # Backtest contra velas históricas públicas
-binance_grid_bot.py        # Bot en vivo (Testnet por defecto)
+tradingbot/binance_config.py                 # Credenciales y parámetros de grilla por símbolo
+tradingbot/strategies/grid_strategy.py       # Lógica pura: niveles de la grilla y detección de cruces
+tradingbot/backtests/binance_grid_backtest.py # Backtest contra velas históricas públicas
+tradingbot/bots/binance_grid_bot.py          # Bot en vivo (Testnet por defecto)
 ```
 
 ## Próximos pasos posibles

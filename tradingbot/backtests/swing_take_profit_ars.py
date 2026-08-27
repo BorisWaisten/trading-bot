@@ -21,7 +21,7 @@ CEDEAR también se mueve por el CCL, así que el resultado real puede
 diferir de esta simulación.
 
 Uso:
-    python swing_take_profit_ars.py
+    python -m tradingbot.backtests.swing_take_profit_ars
 """
 import yfinance as yf
 import pandas as pd

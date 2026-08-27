@@ -12,7 +12,7 @@ empresas necesitarías su ADR en EE.UU. (ver MERVAL_TICKERS más abajo,
 columna 'adr_alpaca').
 
 Uso:
-    python buy_hold_merval.py
+    python -m tradingbot.backtests.buy_hold_merval
 """
 from datetime import datetime
 

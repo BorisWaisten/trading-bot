@@ -12,7 +12,7 @@ Lógica (por cada símbolo, de forma independiente):
    se repite el ciclo.
 
 Uso:
-    python swing_take_profit.py
+    python -m tradingbot.backtests.swing_take_profit
 """
 import yfinance as yf
 import pandas as pd

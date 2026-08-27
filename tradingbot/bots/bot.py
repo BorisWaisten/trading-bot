@@ -14,7 +14,7 @@ IMPORTANTE:
   garantía de resultados.
 
 Uso:
-    python bot.py
+    python -m tradingbot.bots.bot
 """
 import time
 from datetime import datetime, timedelta
@@ -22,13 +22,13 @@ from datetime import datetime, timedelta
 import alpaca_trade_api as tradeapi
 import pandas as pd
 
-from config import (
+from tradingbot.config import (
     ALPACA_API_KEY, ALPACA_SECRET_KEY, ALPACA_BASE_URL,
     SYMBOL, SMA_SHORT, SMA_LONG,
     CHECK_INTERVAL_SECONDS, MAX_POSITION_VALUE_USD,
     RISK_PER_TRADE_PCT, STOP_LOSS_PCT, TAKE_PROFIT_PCT,
 )
-from strategy import add_signals, latest_action
+from tradingbot.strategies.strategy import add_signals, latest_action
 
 
 def get_api():

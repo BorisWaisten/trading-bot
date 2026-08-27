@@ -13,15 +13,15 @@ esa salvedad en mente, y validá igual en testnet en vivo durante varias
 semanas antes de pensar en cuenta real.
 
 Uso:
-    python binance_grid_backtest.py
+    python -m tradingbot.backtests.binance_grid_backtest
 """
 import time
 from datetime import datetime, timedelta, timezone
 
 import requests
 
-from binance_config import GRID_CONFIG, FEE_PCT
-from grid_strategy import build_levels, find_crossings
+from tradingbot.binance_config import GRID_CONFIG, FEE_PCT
+from tradingbot.strategies.grid_strategy import build_levels, find_crossings
 
 KLINES_URL = "https://fapi.binance.com/fapi/v1/klines"
 

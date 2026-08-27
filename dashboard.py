@@ -117,7 +117,7 @@ def render_binance():
     try:
         from binance_config import (
             BINANCE_API_KEY, BINANCE_API_SECRET, BINANCE_TESTNET,
-            GRID_CONFIG, GRID_STATE_FILE, GRID_LOG_FILE,
+            GRID_CONFIG, GRID_STATE_FILE, GRID_LOG_FILE, with_timeout,
         )
     except Exception as e:
         st.error(f"No se pudo cargar binance_config.py: {e}")
@@ -136,7 +136,7 @@ def render_binance():
         # defecto pega contra la API de Spot, no la de Futures que usa este
         # panel.
         client = Client(BINANCE_API_KEY, BINANCE_API_SECRET, testnet=BINANCE_TESTNET, ping=False)
-        balances = client.futures_account_balance()
+        balances = with_timeout(client.futures_account_balance)
     except Exception as e:
         st.error(f"No se pudo conectar a Binance: {e}")
         return
@@ -159,7 +159,7 @@ def render_binance():
             continue
 
         try:
-            price = float(client.futures_symbol_ticker(symbol=symbol)["price"])
+            price = float(with_timeout(client.futures_symbol_ticker, symbol=symbol)["price"])
         except Exception:
             price = None
 

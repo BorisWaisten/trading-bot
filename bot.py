@@ -44,7 +44,9 @@ def fetch_price_history(api, symbol: str, lookback_days: int = 100) -> pd.DataFr
     """Trae velas diarias recientes desde Alpaca para calcular las medias móviles."""
     end = datetime.now()
     start = end - timedelta(days=lookback_days * 2)  # margen por fines de semana/feriados
-    bars = api.get_bars(symbol, tradeapi.TimeFrame.Day, start.isoformat(), end.isoformat()).df
+    # Fechas en formato YYYY-MM-DD: .isoformat() incluye microsegundos sin
+    # zona horaria, que la API de Alpaca rechaza como RFC3339 invalido.
+    bars = api.get_bars(symbol, tradeapi.TimeFrame.Day, start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")).df
     bars = bars.rename(columns={"close": "close"})[["close"]]
     return bars
 

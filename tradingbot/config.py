@@ -9,6 +9,18 @@ Cómo obtener tus claves de Alpaca (paper trading, gratis):
 4. Creá un archivo .env en esta carpeta (ver .env.example) con:
      ALPACA_API_KEY=tu_key
      ALPACA_SECRET_KEY=tu_secret
+
+Para pasar a CUENTA REAL (dinero de verdad, no simulado):
+1. En Alpaca hay que solicitar aparte una cuenta "Live" (no es automático
+   pasar de paper a real: Alpaca pide verificación de identidad y vincular
+   una cuenta bancaria para fondear). Se hace desde el dashboard de Alpaca,
+   no desde acá.
+2. Una vez aprobada, Alpaca te da API Key y Secret Key DISTINTAS a las de
+   paper trading -- no son las mismas credenciales.
+3. En .env, cambiá a esas claves reales y agregá:
+     ALPACA_LIVE_TRADING=true
+   Sin esta variable en true, el bot SIEMPRE opera en paper trading (dinero
+   simulado), aunque le pongas claves reales por error.
 """
 import os
 from pathlib import Path
@@ -26,10 +38,14 @@ os.makedirs(DATA_DIR, exist_ok=True)
 ALPACA_API_KEY = os.getenv("ALPACA_API_KEY", "")
 ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY", "")
 
-# URL de paper trading (dinero simulado). Para ir a real sería
-# "https://api.alpaca.markets", pero NO lo cambies hasta haber
-# validado la estrategia con paper trading durante un buen tiempo.
-ALPACA_BASE_URL = "https://paper-api.alpaca.markets"
+# false (default) = paper trading, dinero simulado. true = cuenta REAL,
+# dinero de verdad -- solo se activa si vos lo ponés explícitamente en
+# .env, nunca por defecto. Ver CHECKLIST_PRODUCCION.md antes de activarlo.
+ALPACA_LIVE_TRADING = os.getenv("ALPACA_LIVE_TRADING", "false").lower() == "true"
+ALPACA_BASE_URL = (
+    "https://api.alpaca.markets" if ALPACA_LIVE_TRADING
+    else "https://paper-api.alpaca.markets"
+)
 
 # --- Parámetros de la estrategia ---
 SYMBOL = "AAPL"          # Ticker a operar

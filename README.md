@@ -119,6 +119,25 @@ el stop-loss se ejecuta. Por ejemplo, con capital de $10,000, riesgo del 1%
 ($100) y un stop-loss del 5%, el bot arriesga $100 / 5% = hasta $2,000 en
 valor de posición.
 
+## 5.1 Pasar a CUENTA REAL (dinero de verdad)
+
+⚠️ Leé primero `CHECKLIST_PRODUCCION.md` — está pensado justamente para esta
+decisión. Por defecto el bot SIEMPRE opera en paper trading, sin importar
+qué API keys le pongas, salvo que actives esto explícitamente:
+
+1. En Alpaca, solicitá una cuenta **Live** aparte (no es lo mismo que
+   Paper Trading — pide verificación de identidad y vincular una cuenta
+   bancaria para fondear). Se hace desde el dashboard de Alpaca.
+2. Una vez aprobada, te da API Key y Secret Key **distintas** a las de
+   paper trading.
+3. En `.env`, poné esas claves reales y agregá:
+   ```
+   ALPACA_LIVE_TRADING=true
+   ```
+4. Reiniciá el bot. El log y el dashboard van a mostrar bien visible
+   "*** CUENTA REAL ***" en vez de "PAPER TRADING" para que nunca haya
+   dudas de en qué modo está corriendo.
+
 ## 6. Estructura del proyecto
 
 ```
@@ -245,6 +264,29 @@ Todo se configura en `tradingbot/binance_config.py`, en `GRID_CONFIG` por símbo
 | `leverage` | Apalancamiento en Binance Futures. Empezar bajo (2-3x): a mayor leverage, más cerca queda el precio de liquidación |
 | `capital_per_grid_usd` | Margen (USD) asignado a CADA orden individual de la grilla, no al total |
 | `invalidate_pct` | Si el precio sale del rango `[lower, upper]` por más de este % extra, el bot deja de operar ese símbolo |
+
+## 5.1 Pasar a CUENTA REAL (dinero de verdad, con apalancamiento)
+
+⚠️ Leé primero `CHECKLIST_PRODUCCION.md`. Acá el riesgo es mayor que en
+Alpaca porque hay apalancamiento de por medio (podés liquidar la posición,
+no solo perder lo invertido). Por defecto el bot SIEMPRE opera en testnet:
+
+1. Generá API keys en tu cuenta real de Binance (**binance.com**, no
+   testnet.binancefuture.com), con permiso de "Futures" habilitado y,
+   si podés, restringidas por IP.
+2. En `.env`, poné esas claves reales en `BINANCE_API_KEY` /
+   `BINANCE_API_SECRET` y cambiá:
+   ```
+   BINANCE_TESTNET=false
+   ```
+3. Depositá USDT en la wallet de **Futures** de tu cuenta real (no en Spot).
+   Sin fondos ahí, el bot loguea error de margen insuficiente pero no
+   puede perder plata que no tiene.
+4. Reiniciá el bot. El log y el dashboard van a mostrar bien visible
+   "*** CUENTA REAL ***" en vez de "TESTNET".
+5. Empezá con `leverage` y `capital_per_grid_usd` bajos en `GRID_CONFIG`
+   (los valores actuales son conservadores, pero volvé a revisarlos con
+   plata real en juego).
 
 ## 6. Estructura del módulo
 

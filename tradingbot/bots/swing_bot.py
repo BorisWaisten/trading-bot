@@ -39,7 +39,7 @@ from logging.handlers import RotatingFileHandler
 import alpaca_trade_api as tradeapi
 
 from tradingbot.config import (
-    ALPACA_API_KEY, ALPACA_SECRET_KEY, ALPACA_BASE_URL,
+    ALPACA_API_KEY, ALPACA_SECRET_KEY, ALPACA_BASE_URL, ALPACA_LIVE_TRADING,
     SWING_SYMBOLS, SWING_PROFIT_TARGET_PCT, SWING_PULLBACK_PCT,
     SWING_STOP_LOSS_PCT, SWING_STATE_FILE, CHECK_INTERVAL_SECONDS,
     DATA_DIR,
@@ -188,8 +188,13 @@ def main():
     state = load_state()
 
     account = api.get_account()
-    logger.info("Conectado a Alpaca (PAPER TRADING)")
-    logger.info(f"Balance de la cuenta simulada: ${float(account.cash):,.2f}")
+    modo = "*** CUENTA REAL ***" if ALPACA_LIVE_TRADING else "PAPER TRADING (simulado)"
+    logger.info(f"Conectado a Alpaca -- modo: {modo}")
+    if ALPACA_LIVE_TRADING:
+        logger.warning("ALPACA_LIVE_TRADING=true: este bot va a operar con DINERO REAL. "
+                        "Confirma que validaste la estrategia extensamente antes de seguir "
+                        "(ver CHECKLIST_PRODUCCION.md).")
+    logger.info(f"Balance de la cuenta: ${float(account.cash):,.2f}")
     logger.info(f"Símbolos: {', '.join(SWING_SYMBOLS)}")
     logger.info(f"Registrando actividad en trading_bot.log")
     logger.info(f"Revisando cada {CHECK_INTERVAL_SECONDS // 60} minutos. Ctrl+C para detener.\n")

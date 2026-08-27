@@ -23,7 +23,7 @@ import alpaca_trade_api as tradeapi
 import pandas as pd
 
 from tradingbot.config import (
-    ALPACA_API_KEY, ALPACA_SECRET_KEY, ALPACA_BASE_URL,
+    ALPACA_API_KEY, ALPACA_SECRET_KEY, ALPACA_BASE_URL, ALPACA_LIVE_TRADING,
     SYMBOL, SMA_SHORT, SMA_LONG,
     CHECK_INTERVAL_SECONDS, MAX_POSITION_VALUE_USD,
     RISK_PER_TRADE_PCT, STOP_LOSS_PCT, TAKE_PROFIT_PCT,
@@ -140,8 +140,13 @@ def run_once(api):
 def main():
     api = get_api()
     account = api.get_account()
-    print("Conectado a Alpaca (PAPER TRADING)")
-    print(f"Balance de la cuenta simulada: ${float(account.cash):,.2f}")
+    modo = "*** CUENTA REAL ***" if ALPACA_LIVE_TRADING else "PAPER TRADING (simulado)"
+    print(f"Conectado a Alpaca -- modo: {modo}")
+    if ALPACA_LIVE_TRADING:
+        print("[AVISO] ALPACA_LIVE_TRADING=true: este bot va a operar con DINERO REAL. "
+              "Confirma que validaste la estrategia extensamente antes de seguir "
+              "(ver CHECKLIST_PRODUCCION.md).")
+    print(f"Balance de la cuenta: ${float(account.cash):,.2f}")
     print(f"Revisando {SYMBOL} cada {CHECK_INTERVAL_SECONDS // 60} minutos. Ctrl+C para detener.\n")
 
     while True:

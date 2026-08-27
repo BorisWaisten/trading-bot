@@ -13,6 +13,17 @@ Cómo obtener tus claves de Binance Futures TESTNET (fondos simulados, gratis):
 ⚠️ NO pongas ahí las API keys de tu cuenta REAL hasta haber validado la
 estrategia en testnet durante varias semanas y entender bien el riesgo de
 operar con apalancamiento (ver README.md).
+
+Para pasar a CUENTA REAL (dinero de verdad, no simulado):
+1. Generá API keys en tu cuenta real de Binance (binance.com, no
+   testnet.binancefuture.com), con permiso de "Futures" habilitado y,
+   si podés, restringidas por IP.
+2. En .env, poné esas claves reales en BINANCE_API_KEY/BINANCE_API_SECRET
+   y cambiá:
+     BINANCE_TESTNET=false
+3. Depositá USDT en la wallet de Futures de tu cuenta real -- sin fondos
+   ahí, el bot va a loguear errores de margen insuficiente pero no puede
+   perder plata que no tiene.
 """
 import os
 import threading

@@ -49,11 +49,11 @@ def read_json(path: str):
 
 # ---------------------------------------------------------------- Alpaca --
 def render_alpaca():
-    st.header("Acciones (Alpaca, paper trading)")
+    st.header("Acciones (Alpaca)")
     try:
         import alpaca_trade_api as tradeapi
         from tradingbot.config import (
-            ALPACA_API_KEY, ALPACA_SECRET_KEY, ALPACA_BASE_URL,
+            ALPACA_API_KEY, ALPACA_SECRET_KEY, ALPACA_BASE_URL, ALPACA_LIVE_TRADING,
             DATA_DIR, SWING_STATE_FILE,
         )
     except Exception as e:
@@ -70,6 +70,8 @@ def render_alpaca():
     except Exception as e:
         st.error(f"No se pudo conectar a Alpaca: {e}")
         return
+
+    st.caption("*** CUENTA REAL ***" if ALPACA_LIVE_TRADING else "Paper trading (fondos simulados)")
 
     col1, col2, col3 = st.columns(3)
     col1.metric("Equity", f"${float(account.equity):,.2f}")

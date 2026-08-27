@@ -35,7 +35,7 @@ from binance.enums import SIDE_BUY, SIDE_SELL, FUTURE_ORDER_TYPE_MARKET
 from binance_config import (
     BINANCE_API_KEY, BINANCE_API_SECRET, BINANCE_TESTNET,
     GRID_CONFIG, GRID_STATE_FILE, GRID_LOG_FILE, GRID_CHECK_INTERVAL_SECONDS,
-    DATA_DIR,
+    DATA_DIR, with_timeout,
 )
 from grid_strategy import build_levels, find_crossings
 
@@ -70,7 +70,7 @@ def get_client() -> Client:
 def load_symbol_filters(client: Client) -> dict:
     """precision de cantidad y cantidad minima por simbolo, para redondear
     las ordenes segun las reglas de Binance (LOT_SIZE)."""
-    info = client.futures_exchange_info()
+    info = with_timeout(client.futures_exchange_info)
     filters = {}
     for s in info["symbols"]:
         if s["symbol"] in GRID_CONFIG:
@@ -92,7 +92,7 @@ def save_state(state: dict):
 
 
 def get_price(client: Client, symbol: str) -> float:
-    return float(client.futures_symbol_ticker(symbol=symbol)["price"])
+    return float(with_timeout(client.futures_symbol_ticker, symbol=symbol)["price"])
 
 
 def init_symbol_state(client: Client, symbol: str, cfg: dict) -> dict:
@@ -102,7 +102,7 @@ def init_symbol_state(client: Client, symbol: str, cfg: dict) -> dict:
     upper = price * (1 + cfg["range_pct"])
     levels = build_levels(lower, upper, cfg["grid_count"])
 
-    client.futures_change_leverage(symbol=symbol, leverage=cfg["leverage"])
+    with_timeout(client.futures_change_leverage, symbol=symbol, leverage=cfg["leverage"])
 
     return {
         "levels": levels,
@@ -154,15 +154,16 @@ def process_symbol(client: Client, symbol: str, cfg: dict, state: dict, filters:
                     logger.warning(f"[{symbol}] Nivel {i} (${levels[i]:,.2f}): cantidad calculada ({qty}) "
                                     f"menor al minimo permitido ({min_qty}). Se omite la compra.")
                     continue
-                client.futures_create_order(symbol=symbol, side=SIDE_BUY, type=FUTURE_ORDER_TYPE_MARKET, quantity=qty)
+                with_timeout(client.futures_create_order, symbol=symbol, side=SIDE_BUY,
+                             type=FUTURE_ORDER_TYPE_MARKET, quantity=qty)
                 positions[str(i)] = {"qty": qty, "entry_price": levels[i]}
                 logger.info(f"[{symbol}] BUY nivel {i}: {qty} @ ~${levels[i]:,.2f}")
         else:
             below = i - 1
             if below >= 0 and str(below) in positions:
                 pos = positions.pop(str(below))
-                client.futures_create_order(symbol=symbol, side=SIDE_SELL, type=FUTURE_ORDER_TYPE_MARKET,
-                                             quantity=pos["qty"], reduceOnly=True)
+                with_timeout(client.futures_create_order, symbol=symbol, side=SIDE_SELL,
+                             type=FUTURE_ORDER_TYPE_MARKET, quantity=pos["qty"], reduceOnly=True)
                 logger.info(f"[{symbol}] SELL nivel {below}: {pos['qty']} @ ~${levels[i]:,.2f} "
                             f"(compra: ${pos['entry_price']:,.2f})")
 
@@ -190,7 +191,7 @@ def main():
         logger.warning("BINANCE_TESTNET=false: este bot va a operar con dinero REAL y apalancamiento. "
                         "Confirma que validaste la estrategia extensamente antes de seguir.")
 
-    balances = client.futures_account_balance()
+    balances = with_timeout(client.futures_account_balance)
     usdt = next((b for b in balances if b["asset"] == "USDT"), None)
     if usdt:
         logger.info(f"Balance USDT disponible: ${float(usdt['availableBalance']):,.2f}")

@@ -15,11 +15,46 @@ estrategia en testnet durante varias semanas y entender bien el riesgo de
 operar con apalancamiento (ver README.md).
 """
 import os
+import threading
 from dotenv import load_dotenv
 
 load_dotenv()
 
 DATA_DIR = os.getenv("DATA_DIR", ".")
+
+# Limite de tiempo "duro" (de reloj) para las llamadas a la API de Binance.
+# El timeout propio de requests/python-binance solo corta si no llega NINGUN
+# byte nuevo dentro de ese lapso -- una respuesta que llega goteando muy
+# lento (por ejemplo, por una restriccion geografica que no corta la
+# conexion sino que la deja colgada) puede evadirlo y bloquear el proceso
+# para siempre, sin ninguna excepcion que loguear. with_timeout() fuerza un
+# limite real independientemente de eso.
+#
+# Usa un thread daemon "de usar y tirar" en lugar de ThreadPoolExecutor:
+# ThreadPoolExecutor espera (join) sus threads al cerrar el proceso, asi que
+# si la llamada realmente nunca vuelve, igual trabaria el shutdown -- justo
+# lo que este helper busca evitar. Un thread daemon se abandona sin esperar.
+BINANCE_CALL_TIMEOUT_SECONDS = 20
+
+
+def with_timeout(fn, *args, timeout=BINANCE_CALL_TIMEOUT_SECONDS, **kwargs):
+    outcome = {}
+
+    def target():
+        try:
+            outcome["value"] = fn(*args, **kwargs)
+        except Exception as e:
+            outcome["error"] = e
+
+    thread = threading.Thread(target=target, daemon=True)
+    thread.start()
+    thread.join(timeout)
+    if thread.is_alive():
+        name = getattr(fn, "__name__", str(fn))
+        raise TimeoutError(f"{name} no respondio dentro de {timeout}s")
+    if "error" in outcome:
+        raise outcome["error"]
+    return outcome.get("value")
 
 BINANCE_API_KEY = os.getenv("BINANCE_API_KEY", "")
 BINANCE_API_SECRET = os.getenv("BINANCE_API_SECRET", "")

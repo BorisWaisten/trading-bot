@@ -59,7 +59,12 @@ def get_client() -> Client:
             "Faltan las credenciales de Binance. Crea un archivo .env con "
             "BINANCE_API_KEY y BINANCE_API_SECRET (ver binance_config.py)."
         )
-    return Client(BINANCE_API_KEY, BINANCE_API_SECRET, testnet=BINANCE_TESTNET)
+    # ping=False: por defecto python-binance verifica conectividad contra la
+    # API de Spot al crear el cliente, pero este bot solo usa Futures (URL y
+    # claves distintas) -- ese ping de Spot puede fallar (incluido el
+    # bloqueo geografico "restricted location" de Binance) sin que afecte
+    # en nada a las llamadas futures_* que realmente usa el bot.
+    return Client(BINANCE_API_KEY, BINANCE_API_SECRET, testnet=BINANCE_TESTNET, ping=False)
 
 
 def load_symbol_filters(client: Client) -> dict:

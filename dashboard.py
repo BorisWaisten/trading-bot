@@ -132,7 +132,10 @@ def render_binance():
 
     try:
         from binance.client import Client
-        client = Client(BINANCE_API_KEY, BINANCE_API_SECRET, testnet=BINANCE_TESTNET)
+        # ping=False: ver comentario en binance_grid_bot.py -- el ping por
+        # defecto pega contra la API de Spot, no la de Futures que usa este
+        # panel.
+        client = Client(BINANCE_API_KEY, BINANCE_API_SECRET, testnet=BINANCE_TESTNET, ping=False)
         balances = client.futures_account_balance()
     except Exception as e:
         st.error(f"No se pudo conectar a Binance: {e}")

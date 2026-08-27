@@ -4,7 +4,7 @@ numpy>=1.26.0
 yfinance>=0.2.40
 python-dotenv>=1.0.1
 requests>=2.31.0
-python-binance>=1.0.19
+python-binance>=1.0.25  # necesita soporte para Client(..., ping=False)
 streamlit>=1.38.0
 
 # PyOBD no está en PyPI, se instala aparte con:
